@@ -3,11 +3,41 @@ name = "jwvtscore"
 version = "0.1.0"
 description = "Privacy-first VirusTotal hash lookup CLI"
 readme = "README.md"
+license = "MIT"
+authors = [
+  { name = "Jan Wychowaniak" },
+]
 requires-python = ">=3.11"
+keywords = [
+  "cli",
+  "hash",
+  "malware",
+  "security",
+  "sha256",
+  "virustotal",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Security",
+  "Topic :: Utilities",
+]
 dependencies = [
   "httpx>=0.27,<0.29",
   "rich>=13.7,<14",
 ]
+
+[project.urls]
+Repository = "https://github.com/janwychowaniak/jwvtscore"
 
 [project.scripts]
 jwvtscore = "jwvtscore.cli:main"
@@ -25,6 +55,19 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/jwvtscore"]
 
+[tool.hatch.build.targets.sdist]
+include = [
+  "/LICENSE",
+  "/README.md",
+  "/pyproject.toml",
+  "/src",
+]
+exclude = [
+  "/AGENTS.md",
+  "/tests",
+  "/uv.lock",
+]
+
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
@@ -32,4 +75,3 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-
