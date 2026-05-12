@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import httpx
 import pytest
 
 from jwvtscore.vt_client import ConfigurationError, VirusTotalClient, VirusTotalError
 
 
-def make_transport(handler):
+def make_transport(handler: Callable[[httpx.Request], httpx.Response]) -> httpx.MockTransport:
     return httpx.MockTransport(handler)
 
 
@@ -18,7 +20,7 @@ def test_from_env_requires_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_lookup_hash_uses_hash_only_path() -> None:
-    seen = {}
+    seen: dict[str, str | bytes] = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
         seen["method"] = request.method
@@ -49,7 +51,9 @@ def test_lookup_hash_uses_hash_only_path() -> None:
     assert result.status == "clean"
     assert result.permalink == "https://www.virustotal.com/gui/file/abc"
     assert seen["method"] == "GET"
-    assert seen["url"].endswith("/files/abc")
+    seen_url = seen["url"]
+    assert isinstance(seen_url, str)
+    assert seen_url.endswith("/files/abc")
     assert seen["body"] == b""
 
 

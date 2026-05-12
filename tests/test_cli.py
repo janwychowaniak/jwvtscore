@@ -21,6 +21,13 @@ class FakeClient:
         return None
 
 
+def install_fake_client(monkeypatch: pytest.MonkeyPatch, fake_client: FakeClient) -> None:
+    def from_env() -> FakeClient:
+        return fake_client
+
+    monkeypatch.setattr("jwvtscore.cli.VirusTotalClient.from_env", from_env)
+
+
 def test_main_reports_missing_api_key(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -38,9 +45,7 @@ def test_main_success_for_known_file(
 ) -> None:
     sample = tmp_path / "known.bin"
     sample.write_bytes(b"hello world")
-    file_hash = (
-        "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
-    )
+    file_hash = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
     fake_client = FakeClient(
         {
             file_hash: LookupResult(
@@ -51,7 +56,7 @@ def test_main_success_for_known_file(
             )
         }
     )
-    monkeypatch.setattr(cli.VirusTotalClient, "from_env", lambda: fake_client)
+    install_fake_client(monkeypatch, fake_client)
 
     exit_code = cli.main([str(sample)])
     captured = capsys.readouterr()
@@ -68,13 +73,11 @@ def test_main_reports_not_found_without_failure(
 ) -> None:
     sample = tmp_path / "unknown.bin"
     sample.write_bytes(b"hello world")
-    file_hash = (
-        "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
-    )
+    file_hash = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
     fake_client = FakeClient(
         {file_hash: LookupResult(found=False, status="not_found", stats=None, permalink=None)}
     )
-    monkeypatch.setattr(cli.VirusTotalClient, "from_env", lambda: fake_client)
+    install_fake_client(monkeypatch, fake_client)
 
     exit_code = cli.main([str(sample)])
     captured = capsys.readouterr()
@@ -88,9 +91,7 @@ def test_main_continues_after_file_error(
 ) -> None:
     sample = tmp_path / "known.bin"
     sample.write_bytes(b"hello world")
-    file_hash = (
-        "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
-    )
+    file_hash = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
     fake_client = FakeClient(
         {
             file_hash: LookupResult(
@@ -101,7 +102,7 @@ def test_main_continues_after_file_error(
             )
         }
     )
-    monkeypatch.setattr(cli.VirusTotalClient, "from_env", lambda: fake_client)
+    install_fake_client(monkeypatch, fake_client)
 
     exit_code = cli.main([str(tmp_path / "missing.bin"), str(sample)])
     captured = capsys.readouterr()

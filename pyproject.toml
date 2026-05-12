@@ -44,6 +44,7 @@ jwvtscore = "jwvtscore.cli:main"
 
 [dependency-groups]
 dev = [
+  "mypy>=1.15,<2",
   "pytest>=8.3,<9",
   "ruff>=0.11,<0.12",
 ]
@@ -75,3 +76,10 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.mypy]
+strict = true
+files = [
+  "src",
+  "tests",
+]

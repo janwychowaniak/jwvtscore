@@ -11,4 +11,3 @@ class FileRecord:
     stats: dict[str, int] | None = None
     permalink: str | None = None
     error: str | None = None
-

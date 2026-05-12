@@ -3,13 +3,19 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+from typing import Protocol
 
 from rich.console import Console
 
 from jwvtscore.hashing import compute_sha256
 from jwvtscore.models import FileRecord
 from jwvtscore.output import print_record
+from jwvtscore.vt_client import LookupResult
 from jwvtscore.vt_client import ConfigurationError, VirusTotalClient, VirusTotalError
+
+
+class FileLookupClient(Protocol):
+    def lookup_hash(self, file_hash: str) -> LookupResult: ...
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -45,11 +51,15 @@ def main(argv: list[str] | None = None) -> int:
     return 1 if had_operational_error else 0
 
 
-def inspect_path(path: Path, client: VirusTotalClient) -> tuple[FileRecord, bool]:
+def inspect_path(path: Path, client: FileLookupClient) -> tuple[FileRecord, bool]:
     if not path.exists():
-        return FileRecord(path=str(path), sha256="-", status="error", error="path does not exist"), True
+        return FileRecord(
+            path=str(path), sha256="-", status="error", error="path does not exist"
+        ), True
     if not path.is_file():
-        return FileRecord(path=str(path), sha256="-", status="error", error="path is not a regular file"), True
+        return FileRecord(
+            path=str(path), sha256="-", status="error", error="path is not a regular file"
+        ), True
 
     try:
         file_hash = compute_sha256(path)
