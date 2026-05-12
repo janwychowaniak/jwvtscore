@@ -54,11 +54,61 @@ Example output:
   link:     https://www.virustotal.com/gui/file/b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9
 ```
 
+## Exit Codes
+
+- `0`: all inspected files were handled successfully.
+- `1`: at least one path or VirusTotal lookup failed.
+- `2`: local configuration is missing, such as `VIRUSTOTAL_API_KEY`.
+
 ## Development
+
+Install the development environment:
 
 ```bash
 uv sync
+```
+
+Run the local quality gate:
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy
 uv run pytest
+uv run pip-audit --local --progress-spinner off
+uv build
+```
+
+Run the CLI from a checkout:
+
+```bash
 uv run jwvtscore /path/to/file
+```
+
+Install the checkout as a global uv-managed tool:
+
+```bash
 uv tool install .
 ```
+
+## Release
+
+Releases are published to PyPI by GitHub Actions using PyPI Trusted Publishing.
+The package version is defined in `pyproject.toml`; `jwvtscore.__version__`
+reads that installed package metadata at runtime.
+
+To publish a new release:
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy
+uv run pytest
+uv run pip-audit --local --progress-spinner off
+uv build
+git tag -a vX.Y.Z -m "vX.Y.Z"
+git push origin vX.Y.Z
+```
+
+Tag pushes matching `v*` trigger the publish workflow. Do not upload package
+files manually or use a PyPI token secret for normal releases.
