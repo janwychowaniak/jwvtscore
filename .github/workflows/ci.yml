@@ -51,6 +51,9 @@ jobs:
       - name: Type check
         run: uv run mypy
 
+      - name: Audit dependencies
+        run: uv run pip-audit --local --progress-spinner off
+
       - name: Test
         run: uv run pytest
 
